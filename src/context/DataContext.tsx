@@ -131,7 +131,7 @@ export function DataProvider({ children }: DataProviderProps) {
   }
   function handleErrorAdding(personData: PersonData, personIdx: number) {
     const toModifyField = getRandomPersonDataField(
-      Math.floor(getRandomNumber() * PERSON_DATA_KEYS_COUNT),
+      Math.floor(getRandomNumberError() * PERSON_DATA_KEYS_COUNT),
       ["idx", "address", "fullName", "id", "phone"]
     );
     const fieldData = personData[toModifyField];
@@ -183,7 +183,7 @@ export function DataProvider({ children }: DataProviderProps) {
     const addAtIdx = getRandomIdx(dataLength, getRandomNumberError());
     return (
       data.slice(0, addAtIdx) +
-      Math.floor(getRandomNumberError() * 26 + 10) +
+      Math.floor(getRandomNumberError() * 26 + 10).toString(36) +
       data.slice(addAtIdx)
     );
   }
@@ -197,9 +197,3 @@ export function DataProvider({ children }: DataProviderProps) {
 }
 export default DataProvider;
 export const useDataCtx = () => useContext(DataContext);
-
-// 1) Index (1, 2, 3, ...)
-// 2) Random identifier
-// 3) Name + middle name + last name (in region format)
-// 4) Address (in several possible formats, e.g. city+street+building+appartment or county+city+street+house)
-// 5) Phone (again, it's great to have several formats, e.g. international or local ones)
