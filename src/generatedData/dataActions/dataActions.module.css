@@ -1,0 +1,15 @@
+.generateDataForm {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  row-gap: 10px;
+  margin: 0 auto;
+  padding: 3rem;
+}
+.errorMessages {
+  width: 400px;
+  color: red;
+  margin: 0 auto;
+  padding: 1rem;
+  border: 1px black solid;
+}

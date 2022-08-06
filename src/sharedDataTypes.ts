@@ -4,7 +4,7 @@ export type GenerateDataForm = {
   seed: number;
 };
 export type PersonData = {
-  idx: number;
+  idx: string;
   id: string;
   fullName: string;
   address: string;

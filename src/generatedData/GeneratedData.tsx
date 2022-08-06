@@ -1,16 +1,14 @@
 import React from "react";
 import DataTable from "./dataTable/DataTable";
 import DataActions from "./dataActions/DataActions";
-import useGeneratedData from "./useGeneratedData";
+import DownloadCSV from "./downloadCsv/DownloadCsv";
 
 const GeneratedData = () => {
-  const { ref, rootRef } = useGeneratedData();
   return (
     <>
       <DataActions />
-      <tbody ref={rootRef}>
-        <DataTable />
-      </tbody>
+      <DataTable />
+      <DownloadCSV />
     </>
   );
 };

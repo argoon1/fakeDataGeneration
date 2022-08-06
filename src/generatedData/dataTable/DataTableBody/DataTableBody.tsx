@@ -9,13 +9,22 @@ const DataTableBody = ({}) => {
     <tbody className={styles.dataTable}>
       {fakePeopleData.map(
         ({ idx: personIdx, id, fullName, address, phone }: PersonData, idx) => (
-          <tr ref={idx === fakePeopleData.length - 1 ? lastItemRef : null}>
-            <td>{personIdx}</td>
-            <td>{id}</td>
-            <td>{fullName}</td>
-            <td>{address}</td>
-            <td>{phone}</td>
-          </tr>
+          <>
+            {idx % 10 === 0 && (
+              <div className={styles.pageNumber}>PAGE {`${idx / 10 + 1}`}</div>
+            )}
+
+            <tr
+              key={id}
+              ref={idx === fakePeopleData.length - 1 ? lastItemRef : null}
+            >
+              <td>{personIdx}</td>
+              <td>{id}</td>
+              <td>{fullName}</td>
+              <td>{address}</td>
+              <td>{phone}</td>
+            </tr>
+          </>
         )
       )}
     </tbody>

@@ -9,6 +9,7 @@ import { GenerateDataForm, PersonData } from "../sharedDataTypes";
 import { createRandomWithSeed } from "./randomNumberUtils";
 import { countriesGenerationData } from "../data/countriesData";
 import { CountryData } from "../sharedDataTypes";
+const PERSON_DATA_KEYS_COUNT = 5;
 const MAX_HOUSE_NUMBER = 150;
 interface DataContextValue {
   submitFormHandle: (formData: GenerateDataForm) => void;
@@ -35,26 +36,39 @@ export function DataProvider({ children }: DataProviderProps) {
     });
   const getRandomNumber = useCallback(
     createRandomWithSeed(dataGenerationInfo.seed),
-    [dataGenerationInfo.seed]
+    [
+      dataGenerationInfo.region,
+      dataGenerationInfo.errorCount,
+      dataGenerationInfo.seed,
+    ]
+  );
+  const getRandomNumberError = useCallback(
+    createRandomWithSeed(dataGenerationInfo.seed),
+    [
+      dataGenerationInfo.region,
+      dataGenerationInfo.errorCount,
+      dataGenerationInfo.seed,
+    ]
   );
   useEffect(() => {
     if (dataGenerationInfo.seed) {
       const data: PersonData[] = [];
       for (let i = 0; i < 20; i++) {
-        data.push({ ...generatePerson(), idx: i + 1 });
+        data.push({ ...generatePerson(), idx: i + 1 + "" });
       }
+      data.map((person, idx) => generateErrors(person, idx));
       setFakePeopleData(data);
     }
-  }, [dataGenerationInfo.seed]);
-  function getRandomPersonField(
-    fieldIdx: number,
-    personFields: (keyof PersonData)[]
-  ): keyof PersonData {
-    return personFields[fieldIdx];
-  }
+  }, [
+    dataGenerationInfo.region,
+    dataGenerationInfo.errorCount,
+    dataGenerationInfo.seed,
+  ]);
   function getRandomIdx(arrLength: number, randNumber: number) {
     return Math.floor(arrLength * randNumber);
   }
+
+  /* ADD PERSON UTILS */
   function getFullName() {
     const { names, surnames } = countryData!;
     const firstName = names[getRandomIdx(names.length, getRandomNumber())];
@@ -80,7 +94,7 @@ export function DataProvider({ children }: DataProviderProps) {
       Math.floor(getRandomNumber() * 10)
     ).join("")}`;
   }
-  function generateErrors() {}
+
   function generatePerson(): Omit<PersonData, "idx"> {
     const randNumber = getRandomNumber();
     const id = randNumber.toString().slice(0, 12);
@@ -99,10 +113,79 @@ export function DataProvider({ children }: DataProviderProps) {
     for (let i = 0; i < 10; i++) {
       newDataEntries.push({
         ...generatePerson(),
-        idx: fakePeopleData.length + i + 1,
+        idx: fakePeopleData.length + i + 1 + "",
       });
+      newDataEntries.map((person) =>
+        generateErrors(person, fakePeopleData.length + i)
+      );
     }
     setFakePeopleData((prevData) => [...prevData, ...newDataEntries]);
+  }
+
+  /* ERROR UTILS */
+  function getRandomPersonDataField(
+    fieldIdx: number,
+    personFields: (keyof PersonData)[]
+  ): keyof PersonData {
+    return personFields[fieldIdx];
+  }
+  function handleErrorAdding(personData: PersonData, personIdx: number) {
+    const toModifyField = getRandomPersonDataField(
+      Math.floor(getRandomNumber() * PERSON_DATA_KEYS_COUNT),
+      ["idx", "address", "fullName", "id", "phone"]
+    );
+    const fieldData = personData[toModifyField];
+    personData[toModifyField] = getRandomErrorFunction()(fieldData);
+    setFakePeopleData((prevFakePeopleData) =>
+      prevFakePeopleData.map((data, idx) => {
+        if (idx === personIdx) return personData;
+        return data;
+      })
+    );
+  }
+  function generateErrors(personData: PersonData, personIdx: number) {
+    const { errorCount } = dataGenerationInfo;
+    if (errorCount < 1) {
+      if (errorCount > getRandomNumberError()) {
+        handleErrorAdding(personData, personIdx);
+      }
+      return;
+    }
+    for (let i = 0; i < Math.floor(errorCount); i++) {
+      handleErrorAdding(personData, personIdx);
+    }
+  }
+  function getRandomErrorFunction() {
+    const errorFunctions = [
+      getSwappedCharactersString,
+      getDeletedCharcterString,
+      getAddChracterString,
+    ];
+    const length = errorFunctions.length;
+    return errorFunctions[getRandomIdx(length, getRandomNumberError())];
+  }
+  function getSwappedCharactersString(data: string) {
+    const swapIdx = getRandomIdx(data.length, getRandomNumberError());
+    const swapIdx2 = data.length - 1 - swapIdx;
+    const dataToSwap = data.split("");
+    const temp = dataToSwap[swapIdx2];
+    dataToSwap[swapIdx2] = data[swapIdx];
+    dataToSwap[swapIdx] = temp;
+    return dataToSwap.join("");
+  }
+  function getDeletedCharcterString(data: string) {
+    const dataLength = data.length;
+    const toDeleteIdx = getRandomIdx(dataLength, getRandomNumberError());
+    return data.slice(0, toDeleteIdx - 1) + data.slice(toDeleteIdx);
+  }
+  function getAddChracterString(data: string) {
+    const dataLength = data.length;
+    const addAtIdx = getRandomIdx(dataLength, getRandomNumberError());
+    return (
+      data.slice(0, addAtIdx) +
+      Math.floor(getRandomNumberError() * 26 + 10) +
+      data.slice(addAtIdx)
+    );
   }
   return (
     <DataContext.Provider
