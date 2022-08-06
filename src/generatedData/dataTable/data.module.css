@@ -1,0 +1,16 @@
+.data {
+  display: block;
+  max-height: 300px;
+}
+.data tbody {
+  display: block;
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.data thead,
+.data tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
